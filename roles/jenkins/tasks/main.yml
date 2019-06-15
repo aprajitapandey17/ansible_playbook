@@ -1,0 +1,48 @@
+---
+# tasks file for jenkins
+
+- name : Installation of epel-release
+  yum :
+    name : "{{ item }}"
+    state : latest
+  with_items:
+    - epel-release
+    - wget
+    - java-1.8.0-openjdk-devel
+
+- name : Add repo of Jenkins
+  shell: curl --silent --location http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo | sudo tee /etc/yum.repos.d/jenkins.repo
+
+- name: adding repo key 
+  shell: rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
+
+- name: installing jenkins
+  yum:
+    name: "{{ package_name }}"
+    state: latest
+
+- name: starting jenkins server
+  service:
+    name: "{{ package_name }}"
+    state: "{{ service_state }}"
+
+- name: checking service status
+  shell: systemctl status jenkins
+
+- name: adding  port in firewall
+  firewalld:
+    port: 8080/tcp
+    permanent: yes
+    state: enabled
+
+- name: reload firewall
+  shell: firewall-cmd --reload
+
+- name: to show the jenkins admin password
+  shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+  #register: output_password
+
+#- name: show password
+#  debug:
+#    var: output_password
+

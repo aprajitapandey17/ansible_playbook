@@ -1,0 +1,5 @@
+---
+# vars file for jenkins
+
+package_name: jenkins
+service_state: started
